@@ -45,15 +45,18 @@ class EventProcessor implements EventProcessorInterface
      */
     public function process(Event $event)
     {
+        $exception = null;
         try {
             $this->eventDispatcher->dispatch($event->getOriginalName(), $event);
             $this->eventDispatcher->dispatch(ProcessedEvents::SUCCESS, new SuccessProcessedEvent($event));
         } catch (\Exception $e) {
             $maxRetryCount = $this->config['retry_count'][$this->eventsConfig[$event->getOriginalName()]['type']];
             $this->eventDispatcher->dispatch(ProcessedEvents::FAIL, new FailProcessedEvent($event, $maxRetryCount));
-            if ($event->isFailed()) {
-                throw $e;
-            }
+            $exception = $e;
+        }
+        $this->eventDispatcher->dispatch(ProcessedEvents::FINISH, new Event());
+        if ($event->isFailed() && $exception) {
+            throw $exception;
         }
     }
 }
