@@ -1,0 +1,3 @@
+itkg_delay_event.channel.lock_report.email.header: 'Hello'
+itkg_delay_event.channel.lock_report.email.content: 'Process traitment of this channel is anormally long'
+itkg_delay_event.channel.lock_report.email.footer: 'Sincerly'

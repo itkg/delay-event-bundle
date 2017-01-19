@@ -74,6 +74,12 @@ class ProcessEventCommand extends ContainerAwareCommand
                 InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
                 'Specify the channels to process (default: [\'default\'])',
                 ['default']
+            )
+            ->addOption(
+                'group-field-identifier',
+                'g',
+                InputOption::VALUE_OPTIONAL,
+                null
             );
     }
 
@@ -96,11 +102,16 @@ class ProcessEventCommand extends ContainerAwareCommand
                 continue;
             }
 
-            if ($this->lockHandler->isLocked($channel)) {
+            $lockName = $channel;
+            if (null !== $field = $input->getOption('group-field-identifier')) {
+                $lockName = sprintf('%s_%s', $lockName, $field);
+            }
+            if ($this->lockHandler->isLocked($lockName)) {
                 $output->writeln(
                     sprintf(
-                        'Command is locked by another process for channel <info>%s</info>.',
-                        $channel
+                        'Command is locked by another process for channel <info>%s</info> and lock name <info>%s</info>',
+                        $channel,
+                        $lockName
                     )
                 );
 
@@ -114,7 +125,7 @@ class ProcessEventCommand extends ContainerAwareCommand
                 )
             );
 
-            $this->lockHandler->lock($channel);
+            $this->lockHandler->lock($lockName);
 
             $processedEventsCount = 0;
             $commandStartTime = time();
@@ -127,7 +138,7 @@ class ProcessEventCommand extends ContainerAwareCommand
                     $this->channels[$channel]['duration_limit_per_run'],
                     $this->channels[$channel]['events_limit_per_run'])
                 ) {
-                    if (!$this->lockHandler->isLocked($channel)) {
+                    if (!$this->lockHandler->isLocked($lockName)) {
                         $output->writeln(
                             sprintf(
                                 '<error>Lock for channel <info>%s</info> has been released outside of the process.</error>',
@@ -141,7 +152,8 @@ class ProcessEventCommand extends ContainerAwareCommand
                     $event = $this->eventRepository->findFirstTodoEvent(
                         false,
                         $this->channels[$channel]['include'],
-                        $this->channels[$channel]['exclude']
+                        $this->channels[$channel]['exclude'],
+                        $input->getOption('group-field-identifier')
                     );
 
                     if (!$event instanceof Event) {
@@ -167,7 +179,7 @@ class ProcessEventCommand extends ContainerAwareCommand
                 $output->writeln($e->getTraceAsString());
             }
 
-            $this->lockHandler->release($channel);
+            $this->lockHandler->release($lockName);
         }
     }
 

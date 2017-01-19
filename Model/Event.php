@@ -9,6 +9,7 @@ use Symfony\Component\EventDispatcher\Event as BaseEvent;
  */
 class Event extends BaseEvent
 {
+    const DEFAULT_GROUP_IDENTIFIER = 'default_group_identifier';
     /**
      * @var string
      */
@@ -28,6 +29,11 @@ class Event extends BaseEvent
      * @var int
      */
     protected $tryCount = 0;
+
+    /**
+     * @var string
+     */
+    protected $groupFieldIdentifier;
 
     /**
      * @param bool $delayed
@@ -122,5 +128,13 @@ class Event extends BaseEvent
     public function increaseTryCount()
     {
         $this->tryCount ++;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGroupFieldIdentifier()
+    {
+        return $this->groupFieldIdentifier;
     }
 }

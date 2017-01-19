@@ -42,4 +42,10 @@ class Lock extends BaseLock
      * @ODM\Date
      */
     protected $lockedAt;
+
+    /** @var string
+     *
+     * @ODM\String
+     */
+    protected $lockedBy = '';
 }

@@ -1,0 +1,3 @@
+itkg_delay_event.channel.lock_report.email.header: 'Bonjour'
+itkg_delay_event.channel.lock_report.email.content: 'Le traitement de la file est anormalment long'
+itkg_delay_event.channel.lock_report.email.footer: 'Cordialement'

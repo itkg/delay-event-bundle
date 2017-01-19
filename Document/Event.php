@@ -54,4 +54,11 @@ class Event extends BaseEvent
      * @ODM\Int
      */
     protected $tryCount = 0;
+
+    /**
+     * @var string
+     *
+     * @ODM\String
+     */
+    protected $groupFieldIdentifier = self::DEFAULT_GROUP_IDENTIFIER;
 }
