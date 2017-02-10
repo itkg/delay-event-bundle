@@ -94,7 +94,7 @@ class ProcessDynamicChannelCommand extends ContainerAwareCommand
     {
         $channel = $input->getArgument('channel');
 
-        $commandline = $this->getContainer()->get('itkg_delay_event.command');
+        $commandline = $this->getContainer()->getParameter('itkg_delay_event.command_line');
 
         if (!isset($this->channels[$channel])) {
             $output->writeln(
