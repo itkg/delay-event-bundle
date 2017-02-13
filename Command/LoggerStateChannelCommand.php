@@ -107,31 +107,41 @@ class LoggerStateChannelCommand extends ContainerAwareCommand
         foreach ($locks as $lock) {
             if ($lock->isCommandLocked()) {
                 foreach ($this->channels as $key => $channel) {
-                    $this->loadChannelInfomation($key, $lock, $channel);
+                    if ($this->isLockedChannelInfomation($key, $lock, $channel, $output)) {
+
+                        $dateWithMaxTime = $lock->getLockedAt();
+
+                        $time = $channel['duration_limit_per_run'] + $this->extraTime;
+                        $dateWithMaxTime->add(
+                            new DateInterval('PT' . $time . 'S')
+                        );
+                        if (new \DateTime() > ($dateWithMaxTime)) {
+                            $this->notifier->process($key);
+                        }
+
+                        break;
+                    }
                 }
 
-                $dateWithMaxTime = $lock->getLockedAt();
-                $dateWithMaxTime->add(new DateInterval('PT' . $this->timeLimit . 'S'));
-                if (new \DateTime() > ($dateWithMaxTime)) {
-                    $this->notifier->process($this->channelName);
-                }
+
             }
         }
     }
 
     /**
-     * @param string $key
-     * @param Lock   $lock
-     * @param array  $channel
+     * @param      $key
+     * @param Lock $lock
+     * @param      $channel
+     * @return bool
      */
-    private function loadChannelInfomation($key, Lock $lock, $channel)
+    private function isLockedChannelInfomation($key, Lock $lock, $channel)
     {
-        $this->channelName = $key;
-        $this->timeLimit = $channel['duration_limit_per_run'] + $this->extraTime;
 
-        if (preg_match(sprintf('/^%s/', $key), $lock->getChannel()) && true === $channel['dynamic']) {
-            $this->channelName = $lock->getChannel();
-            $this->timeLimit = $channel['duration_limit_per_run'] + $this->extraTime;
+        if (preg_match(sprintf('/^%s/', $key), $lock->getChannel()) && true === $channel['dynamic'] || $key == $lock->getChannel() && false === $channel['dynamic']) {
+
+            return true;
         }
+
+        return false;
     }
 }
