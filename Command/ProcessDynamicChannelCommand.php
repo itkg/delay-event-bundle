@@ -3,7 +3,6 @@
 namespace Itkg\DelayEventBundle\Command;
 
 use Itkg\DelayEventBundle\Handler\LockHandlerInterface;
-use Itkg\DelayEventBundle\Model\Event;
 use Itkg\DelayEventBundle\Model\Lock;
 use Itkg\DelayEventBundle\Processor\EventProcessor;
 use Itkg\DelayEventBundle\Repository\EventRepository;
@@ -165,7 +164,7 @@ class ProcessDynamicChannelCommand extends ContainerAwareCommand
             $process = new \Symfony\Component\Process\Process(
                 sprintf(
                     $commandline,
-                    $this->getEnv($input),
+                    $this->getContainer()->getParameter('kernel.environment'),
                     $channel,
                     $identifier
                 )
@@ -196,16 +195,6 @@ class ProcessDynamicChannelCommand extends ContainerAwareCommand
     private function getWorkingDir()
     {
         return $this->getContainer()->get('kernel')->getRootDir();
-    }
-
-    /**
-     * @param InputInterface $input
-     *
-     * @return string
-     */
-    private function getEnv(InputInterface $input)
-    {
-        return $input->getParameterOption(array('--env', '-e'), getenv('SYMFONY_ENV') ?: 'dev');
     }
 
     /**
