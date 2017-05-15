@@ -15,6 +15,10 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
  * )
  * @ODM\DiscriminatorField(fieldName="type")
  * @ODM\InheritanceType("SINGLE_COLLECTION")
+ *
+ * @ODM\Indexes({
+ *   @ODM\Index(keys={"failed"="asc", "originalName"="asc", "groupFieldIdentifier"="asc", "createdAt":"asc"}, name="failed_name_group_date")
+ * })
  */
 class Event extends BaseEvent
 {
