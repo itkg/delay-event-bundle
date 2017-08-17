@@ -147,6 +147,7 @@ class ProcessDynamicChannelCommand extends ContainerAwareCommand
                     $channel
                 )
             );
+            return;
         }
 
         $groupFieldIdentifierListToProcess = array_slice(
@@ -155,7 +156,7 @@ class ProcessDynamicChannelCommand extends ContainerAwareCommand
                 $lockNames
             ),
             0,
-            $input->getOption('concurrent-jobs-count')
+            $concurrentAvailableSlotsCount
         );
 
         foreach ($groupFieldIdentifierListToProcess as $identifier) {
